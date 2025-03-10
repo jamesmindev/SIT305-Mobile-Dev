@@ -6,6 +6,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -38,7 +39,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -53,7 +56,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             Task2Theme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Column(modifier = Modifier.fillMaxSize()) {
                     UnitConverterMain()
                 }
             }
@@ -70,19 +73,19 @@ fun UnitConverterMain(modifier: Modifier = Modifier) {
     var convertTo by remember { mutableStateOf("") }
 
     var valueToConvert by remember { mutableStateOf("") }
-    var result by remember { mutableStateOf("") }
+    var result by remember { mutableStateOf(0.0) }
 
     Column (
         modifier = Modifier.fillMaxSize().padding(16.dp),
     ) {
-        Spacer(modifier = Modifier.height(24.dp));
+        Spacer(modifier = Modifier.height(32.dp));
         Text(
             text = "Unit Converter",
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold
         )
 
-        Spacer(modifier = Modifier.height(24.dp));
+        Spacer(modifier = Modifier.height(16.dp));
 
         Text(text = "What do you want to convert?")
 
@@ -104,7 +107,7 @@ fun UnitConverterMain(modifier: Modifier = Modifier) {
                 Text("Length")
             }
 
-            Spacer(modifier = Modifier.width(2.dp))
+            Spacer(modifier = Modifier.width(4.dp))
 
             FilledTonalButton(
                 onClick = {
@@ -120,7 +123,7 @@ fun UnitConverterMain(modifier: Modifier = Modifier) {
                 Text("Weight")
             }
 
-            Spacer(modifier = Modifier.width(2.dp))
+            Spacer(modifier = Modifier.width(4.dp))
 
             FilledTonalButton(
                 onClick = {
@@ -183,10 +186,101 @@ fun UnitConverterMain(modifier: Modifier = Modifier) {
 
         Spacer(modifier = Modifier.height(12.dp));
 
-        Button(onClick = {}) {
+        Button(
+            modifier = Modifier.fillMaxWidth().height(48.dp),
+            onClick = { result = convertValue(conversionType, convertFrom, convertTo, valueToConvert)}) {
             Text("Convert")
         }
+
+        Spacer(modifier = Modifier.height(24.dp));
+
+        // Conversion result here
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(6.dp))
+                .background(Color(0xffeeeeee))
+                .padding(16.dp)
+            ,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            Text("Result: ${result}");
+            // Text("Result: ${if (result != 0.0) result else ""}");
+        }
     }
+}
+
+fun convertValue( conversionType: String, from: String, to: String, value: String ): Double {
+    if (from.isEmpty() || to.isEmpty() || value.isEmpty()) return 0.0;
+
+    var result: Double = 0.0;
+    var fromValue: Double = 1.0;
+    var toValue: Double = 1.0;
+
+    // Converting Temperature
+    if ( conversionType == "Temperature") {
+        when (from) {
+            "Celsius" -> {
+                fromValue = value.toDouble()
+            };
+            "Fahrenheit" -> {
+                fromValue = (value.toDouble() - 32) / 1.8;
+            }
+            "Kelvin" -> {
+                fromValue = value.toDouble() - 273.15
+            }
+        }
+
+        when (to) {
+            "Celsius" -> {
+                result = fromValue;
+            }
+            "Fahrenheit" -> {
+                result = (fromValue * 1.8) + 32;
+            }
+            "Kelvin" -> {
+                result = fromValue + 273.15;
+            }
+        }
+
+        // Round the value to 3 decimal place.
+        // result = (result * 1000.0).toInt() / 1000.0;
+        return result;
+    }
+
+    // Converting other values
+    when (from) {
+        "centimeter" -> fromValue = 1.0;
+        "inch" -> fromValue = 2.54;
+        "foot" -> fromValue = 30.48;
+        "yard" -> fromValue = 91.44;
+        "mile" -> fromValue = 160934.0;
+
+        "kilogram"-> fromValue = 1.0;
+        "pound" -> fromValue = 0.453592;
+        "ounce" -> fromValue = 0.0283495;
+        "ton" -> fromValue = 907.185;
+    }
+
+    when (to) {
+        "centimeter" -> toValue = 1.0;
+        "inch" -> toValue = 2.54;
+        "foot" -> toValue = 30.48;
+        "yard" -> toValue = 91.44;
+        "mile" -> toValue = 160934.0;
+
+        "kilogram"-> toValue = 1.0;
+        "pound" -> toValue = 0.453592;
+        "ounce" -> toValue = 0.0283495;
+        "ton" -> toValue = 907.185;
+    }
+
+    result = (fromValue * value.toDouble() / toValue);
+    // Round the value to 3 decimal place.
+    // result = (result * 1000.0).toInt() / 1000.0;
+
+    return result;
 }
 
 // UI used to select conversion unit
@@ -194,7 +288,6 @@ fun UnitConverterMain(modifier: Modifier = Modifier) {
 fun UnitSelectorDropdown(label: String, conversionType: String, convertUnit: String, onUpdateConvertUnit: (String)->Unit, modifier: Modifier = Modifier ) {
 
     var showDropdown by remember { mutableStateOf(false) }
-//    var convertUnit by remember { mutableStateOf("") }
 
     // conversionType can be "Length", "Weight", "Temperature"
     val lengthUnits = listOf("centimeter", "inch", "foot", "yard", "mile");
@@ -249,7 +342,6 @@ fun UnitSelectorDropdown(label: String, conversionType: String, convertUnit: Str
         }
     }
 }
-
 
 @Preview(showBackground = true)
 @Composable
