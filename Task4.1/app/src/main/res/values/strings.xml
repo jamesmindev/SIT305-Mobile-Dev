@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Task4</string>
+    <string name="title_activity_task_detail">TaskDetailActivity</string>
+    <string name="title_activity_edit_task">EditTaskActivity</string>
+</resources>
