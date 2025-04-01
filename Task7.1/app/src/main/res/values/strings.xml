@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Task7</string>
+    <string name="title_activity_advert_list">AdvertListActivity</string>
+    <string name="title_activity_advert_detail">AdvertDetailActivity</string>
+    <string name="title_activity_create_advert">CreateAdvertActivity</string>
+    <string name="title_activity_list_all_advert">ListAllAdvertActivity</string>
+</resources>

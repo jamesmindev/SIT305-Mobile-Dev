@@ -38,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -85,6 +86,8 @@ fun CreateTaskScreen(viewModel: TaskViewModel, modifier: Modifier) {
     var taskDueDate by remember { mutableLongStateOf(System.currentTimeMillis()) }
     var taskDescription by remember { mutableStateOf("") }
 
+    var error by remember { mutableStateOf(false) }
+
     Column (
         modifier = modifier.padding(horizontal = 16.dp).verticalScroll(rememberScrollState())
     ) {
@@ -107,16 +110,6 @@ fun CreateTaskScreen(viewModel: TaskViewModel, modifier: Modifier) {
         )
         Spacer(modifier = Modifier.height(16.dp))
 
-//        TextField(
-//            value = taskDueDate,
-//            onValueChange = { taskDueDate = it },
-//            label = { Text("Due Date")},
-//            modifier = Modifier.fillMaxWidth()
-//        )
-//        Spacer(modifier = Modifier.height(16.dp))
-
-//        DatePicker(state = rememberDatePickerState(initialSelectedDateMillis = 1578096000000), )
-
         TextField(
             value = taskDescription,
             onValueChange = { taskDescription = it },
@@ -131,14 +124,22 @@ fun CreateTaskScreen(viewModel: TaskViewModel, modifier: Modifier) {
         )
         Spacer(modifier = Modifier.height(24.dp))
 
+        if (error) {
+            Text(text = "Please fill in the name and description.", color = Color.Red)
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+
         // Button to add task
         Button(onClick = {
+            error = false
             if (taskName.isNotEmpty() && taskDueDate > 0 && taskDescription.isNotEmpty()) {
                 val task = Task(name = taskName, dueDate = taskDueDate, description = taskDescription)
                 viewModel.addTask(task)
 
                 // Once the task is added, finish the activity to go back to the previous screen
                 (context as? ComponentActivity)?.finish()
+            } else {
+                error = true;
             }
         }) {
             Text("Add Task")

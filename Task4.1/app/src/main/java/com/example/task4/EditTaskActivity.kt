@@ -23,6 +23,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -70,6 +71,8 @@ fun EditTaskActivityScreen(task: Task, viewModel: TaskViewModel, modifier: Modif
     var taskDueDate by remember { mutableLongStateOf(task.dueDate) }
     var taskDescription by remember { mutableStateOf(task.description) }
 
+    var error by remember { mutableStateOf(false) };
+
     Column (
         modifier = modifier.padding(horizontal = 16.dp)
     ) {
@@ -106,14 +109,21 @@ fun EditTaskActivityScreen(task: Task, viewModel: TaskViewModel, modifier: Modif
         )
         Spacer(modifier = Modifier.height(24.dp))
 
+        if (error) {
+            Text(text = "Please fill in the name and description.", color = Color.Red)
+        }
+        Spacer(modifier = Modifier.height(16.dp))
         // Button to add task
         Button(onClick = {
+            error = false;
             if (taskName.isNotEmpty() && taskDueDate > 0 && taskDescription.isNotEmpty()) {
                 val updatedTask = task.copy(name = taskName, dueDate = taskDueDate, description = taskDescription)
                 viewModel.updateTask(updatedTask)
 
                 // Once the task is updated, go back to the previous screen
                 (context as? ComponentActivity)?.finish()
+            } else {
+                error = true;
             }
         }) {
             Text("Update Task")
